@@ -1978,10 +1978,14 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
     AssertLockHeld(cs_main);
     assert(pindex);
-    assert(*pindex->phashBlock == block.GetHash());
+
+    uint256 block_hash{block.GetHash()};
+    assert(*pindex->phashBlock == block_hash);
+
     assert(m_clhandler);
     assert(m_isman);
     assert(m_quorum_block_processor);
+
     int64_t nTimeStart = GetTimeMicros();
 
     // Check it again in case a previous version let a bad block in
@@ -2102,7 +2106,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     // make sure old budget is the real one
     if (pindex->nHeight == chainparams.GetConsensus().nSuperblockStartBlock &&
         chainparams.GetConsensus().nSuperblockStartHash != uint256() &&
-        block.GetHash() != chainparams.GetConsensus().nSuperblockStartHash) {
+        block_hash != chainparams.GetConsensus().nSuperblockStartHash) {
             return state.Invalid(ValidationInvalidReason::CONSENSUS, error("ConnectBlock(): invalid superblock start"), REJECT_INVALID, "bad-sb-start");
     }
     /// END DASH
